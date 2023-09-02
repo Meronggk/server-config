@@ -1,0 +1,60 @@
+version: "3.3"
+services:
+      
+  nginx:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped #Ensure proxy manager survives crashes
+    ports:
+      #Allow the respective container ports to be accessible from the host machine
+      - '80:80'
+      - '81:81' #Port for the Admin Panel
+      - '443:443'
+    volumes:
+      #Map the following container directories to corresponding directories on the host
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+
+  homedesign:
+    image: webgallery
+    build: 
+       context: ../home-design-gallery
+       dockerfile: ../home-design-gallery/Dockerfile
+
+  portfolio:
+    image: meron
+    build:
+      context: ../meron-portfolio
+      dockerfile: ../meron-portfolio/Dockerfile
+
+  codezilla_api:
+    image: studentracker
+    build:
+      context: ../codezilla-student-tracker
+      args:
+          NODE_RELEASE: 16
+      dockerfile: ../codezilla-student-tracker/Dockerfile
+    depends_on:
+      - codezilla_db
+    environment:
+      NODE_ENV: production
+      DB_HOST: codezilla_db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: '${CODEZILLA_DB_PASSWORD}'
+      DB_NAME: postgres
+    links:
+      - codezilla_db
+
+  codezilla_db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment: 
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD='${CODEZILLA_DB_PASSWORD}'
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./codezilladata:/var/lib/postgresql/data
+    
+      
+
