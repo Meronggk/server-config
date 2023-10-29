@@ -36,7 +36,7 @@ services:
     - caddy
     labels:
       caddy: design.merongg.me
-      caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy.reverse_proxy: "{{upstreams 3000}}"
 
       #  dockerfile: ../home-design-gallery/Dockerfile
 
@@ -48,7 +48,7 @@ services:
     - caddy
     labels:
       caddy: portfolio.merongg.me
-      caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy.reverse_proxy: "{{upstreams 3000}}"
       # dockerfile: ../meron-portfolio/Dockerfile
 
   codezilla_api:
