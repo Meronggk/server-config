@@ -76,8 +76,8 @@ services:
     image: postgres:14.1-alpine
     restart: always
     environment: 
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD='${CODEZILLA_DB_PASSWORD}'
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: '${CODEZILLA_DB_PASSWORD}'
     ports:
       - '5432:5432'
     volumes:
