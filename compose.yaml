@@ -1,30 +1,55 @@
 version: "3.3"
 services:
       
-  nginx:
-    image: 'jc21/nginx-proxy-manager:latest'
-    restart: unless-stopped #Ensure proxy manager survives crashes
-    ports:
-      #Allow the respective container ports to be accessible from the host machine
-      - '80:80'
-      - '81:81' #Port for the Admin Panel
-      - '443:443'
-    volumes:
-      #Map the following container directories to corresponding directories on the host
-      - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
+  # nginx:
+  #   image: 'jc21/nginx-proxy-manager:latest'
+  #   restart: unless-stopped #Ensure proxy manager survives crashes
+  #   ports:
+  #     #Allow the respective container ports to be accessible from the host machine
+  #     - '80:80'
+  #     - '81:81' #Port for the Admin Panel
+  #     - '443:443'
+  #   volumes:
+  #     #Map the following container directories to corresponding directories on the host
+  #     - ./data:/data
+  #     - ./letsencrypt:/etc/letsencrypt
 
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy:ci-alpine
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - CADDY_INGRESS_NETWORKS=caddy
+    networks:
+      - caddy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - caddy_data:/data
+    restart: unless-stopped
+
+    
   homedesign:
     image: webgallery
-    build: 
-       context: ../home-design-gallery
-       dockerfile: ../home-design-gallery/Dockerfile
+    build: ../home-design-gallery
+    networks:
+    - caddy
+    labels:
+      caddy: design.merongg.me
+      caddy.reverse_proxy: "{{upstreams 80}}"
+
+      #  dockerfile: ../home-design-gallery/Dockerfile
 
   portfolio:
     image: meron
     build:
       context: ../meron-portfolio
-      dockerfile: ../meron-portfolio/Dockerfile
+    networks:
+    - caddy
+    labels:
+      caddy: portfolio.merongg.me
+      caddy.reverse_proxy: "{{upstreams 80}}"
+      # dockerfile: ../meron-portfolio/Dockerfile
 
   codezilla_api:
     image: studentracker
@@ -32,7 +57,12 @@ services:
       context: ../codezilla-student-tracker
       args:
           NODE_RELEASE: 16
-      dockerfile: ../codezilla-student-tracker/Dockerfile
+    networks:
+    - caddy
+    labels:
+      caddy: codezilla.merongg.me
+      caddy.reverse_proxy: "{{upstreams 80}}"
+      # dockerfile: ../codezilla-student-tracker/Dockerfile
     depends_on:
       - codezilla_db
     environment:
@@ -56,5 +86,11 @@ services:
     volumes:
       - ./codezilladata:/var/lib/postgresql/data
     
-      
+networks:
+  caddy: {}
+
+    # external: true
+
+volumes:
+  caddy_data: {}
 
