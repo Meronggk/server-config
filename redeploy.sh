@@ -6,7 +6,7 @@ do
    git pull
 done
 
-cd ~/ghost
+cd ~/server-config
 docker-compose down
 docker-compose build
 docker-compose up -d
