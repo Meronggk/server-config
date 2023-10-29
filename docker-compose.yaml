@@ -61,18 +61,18 @@ services:
     
       # dockerfile: ../codezilla-student-tracker/Dockerfile
     depends_on:
-      - codezilla_db
+      - codezilla_localhostdb
     environment:
       NODE_ENV: production
-      DB_HOST: codezilla_db
+      DB_HOST: codezilla_localhostdb
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: '${CODEZILLA_DB_PASSWORD}'
       DB_NAME: postgres
     links:
-      - codezilla_db
+      - codezilla_localhostdb
 
-  codezilla_db:
+  codezilla_localhostdb:
     image: postgres:14.1-alpine
     restart: always
     environment: 
