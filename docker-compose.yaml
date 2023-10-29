@@ -85,6 +85,8 @@ services:
       - '5432:5432'
     volumes:
       - ./codezilladata:/var/lib/postgresql/data
+    networks:
+    - caddy
     
 networks:
   caddy: {}
